@@ -4,24 +4,64 @@ let currentDisplay = 1;
 
 let currentDisplayRotation = 0;
 
-//*primitive counters
-let boxCounter = 1;
-let cylinderCounter = 1;
-let sphereCounter = 1;
-let coneCounter = 1;
-let dodecahedronCounter = 1;
-let circleCounter = 1;
-let planeCounter = 1;
-let triangleCounter = 1;
+let objectMode = 'object';
 
-let boxes = [];
-let cylinderes = [];
-let spheres = [];
-let cones = [];
-let dodecahedrons = [];
-let circles = [];
-let planes = [];
-let triangles = [];
+let editMode = 'edit';
+
+let mode = objectMode;
+
+//*primitives array
+let primitives = [];
+
+let workingObject;
+
+let lastworkingObject;
+
+AFRAME.registerComponent('change-mode', {
+  init: function(e) {
+    document.addEventListener('xbuttondown', function(evt) {
+      if(mode == 'object') {
+        mode = editMode;
+
+        workingObject.setAttribute('material', {
+          'wireframe': 'true',
+        });
+
+        console.log('%cCurrent mode: edit mode', 'color:red; font-size:2rem');
+      } else if(mode == 'edit') {
+        mode = objectMode;
+
+        workingObject.setAttribute('material', {
+          'wireframe': 'false',
+        });
+
+        console.log('%cCurrent mode: object mode', 'color:red; font-size:2rem');
+      };
+    });
+
+    window.addEventListener('keydown', function(evt) {
+      if(evt.keyCode == 88) {
+        if(mode == 'object') {
+          mode = editMode;
+
+          workingObject.setAttribute('material', {
+            'wireframe': 'true',
+          });
+
+          console.log('%cCurrent mode: edit mode', 'color:red; font-size:2rem');
+        } else if(mode == 'edit') {
+          mode = objectMode;
+
+          workingObject.setAttribute('material', {
+            'wireframe': 'false',
+          });
+
+          console.log('%cCurrent mode: object mode', 'color:red; font-size:2rem');
+        };
+      };
+    });
+  }
+})
 
 AFRAME.registerComponent('show-objects', {
   init: function(e) {
@@ -281,23 +321,110 @@ AFRAME.registerComponent('select-primitive', {
 
     let scene = document.getElementById('scene');
 
-    let primitiveCreator = (primitiveArray, counterName) => {
+    let primitiveCreator = () => {
       let primitive = document.createElement(el.tagName);
       scene.appendChild(primitive);
-      primitive.setAttribute('id', el.tagName + `${counterName}`);
-      primitiveArray.push(primitive);
+      primitive.setAttribute('hoverable', '');
+      primitive.setAttribute('id', el.tagName + `${primitives.length + 1}`);
+      primitives.push(primitive);
 
-      counterName = counterName + 1;
+      console.log('primitives array: ', primitives);
     };
 
     el.addEventListener('raycaster-intersected', function (evt) {
       el.addEventListener('triggerdown', function (evt) {
-        primitiveCreator(box ,boxCounter);
+        primitiveCreator();
       });
 
       el.addEventListener('click', function (evt) {
-        primitiveCreator(boxCounter);
+        primitiveCreator();
       });
+    });
+  },
+});
+
+AFRAME.registerComponent('selection-sound', {
+  init: function() {
+    console.log('init')
+    let selectionSoundEntity = document.getElementById('selectionSoundEntity');
+    
+    document.addEventListener('click', function() {
+      selectionSoundEntity.components.sound.playSound();
+    });
+
+    document.addEventListener('triggerdown', function() {
+      selectionSoundEntity.components.sound.playSound();
+    });
+  }
+});
+
+AFRAME.registerComponent('hoverable', {
+  init: function(e) {
+    let el = this.el;
+
+    console.log('hover init of: ', el);
+    el.addEventListener('raycaster-intersected', function (evt) {
+      el.setAttribute('material', {
+        'color': '#FF5A00',
+      });
+
+      el.addEventListener('triggerdown', function (evt) {
+        if(workingObject !== undefined) {
+          lastworkingObject = workingObject;
+        };
+
+        workingObject = el;
+
+        if(lastworkingObject !== undefined) {
+          lastworkingObject.setAttribute('material', {
+            'color': '#FFF',
+            'wireframe': 'false',
+            'emissive': '#000',
+          });
+        };
+
+        if(mode == 'edit') {
+          el.setAttribute('material', {
+            'wireframe': 'true',
+            'emissive': '#FF5A00',
+            'emissiveIntensity': '0.5',
+          });
+        };
+      });
+
+      el.addEventListener('click', function (evt) {
+        if(workingObject !== undefined) {
+          lastworkingObject = workingObject;
+        };
+
+        workingObject = el;
+
+        if(lastworkingObject !== undefined) {
+          lastworkingObject.setAttribute('material', {
+            'color': '#FFF',
+            'wireframe': 'false',
+            'emissive': '#000',
+          });
+        };
+
+        if(mode == 'edit') {
+          el.setAttribute('material', {
+            'wireframe': 'true',
+            'emissive': '#FF5A00',
+            'emissiveIntensity': '0.5',
+          });
+        };
+      });
+    });
+
+    el.addEventListener('raycaster-intersected-cleared', function (evt) {
+      if(workingObject !== el) {
+        el.setAttribute('material', {
+          'color': '#FFF',
+          'wireframe': 'false',
+          'emissive': '#000',
+        });
+      };
     });
   },
 });
