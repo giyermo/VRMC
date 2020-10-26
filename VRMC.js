@@ -15,8 +15,6 @@ let primitives = [];
 
 let workingObject;
 
-let lastworkingObject;
-
 AFRAME.registerComponent('change-mode', {
   init: function(e) {
     document.addEventListener('xbuttondown', function(evt) {
@@ -103,9 +101,10 @@ AFRAME.registerComponent('show-objects', {
 
     //?cylinder creator function
     let displayCylinderCreator = function() {                
-      displayCylinder = document.createElement('A-CYLINDER');
+      displayCylinder = document.createElement('A-ENTITY');
       displayBase.appendChild(displayCylinder);
       displayCylinder.setAttribute('id', 'displayCylinder');
+      displayCylinder.setAttribute('geometry', {'primitive': 'cylinder'});
       displayCylinder.setAttribute('position', {x: -3, y: 0.15, z: -9.5});
       displayCylinder.setAttribute('rotation', {x: 0, y: 0, z: 0});
       displayCylinder.setAttribute('scale', {x: 0.75, y: 0.75, z: 0.75});
@@ -120,9 +119,10 @@ AFRAME.registerComponent('show-objects', {
 
     //?box creator function
     let displayBoxCreator = function() {
-      displayBox = document.createElement('A-BOX');
+      displayBox = document.createElement('A-ENTITY');
       displayBase.appendChild(displayBox);
       displayBox.setAttribute('id', 'displayBox');
+      displayBox.setAttribute('geometry', {'primitive': 'box'});
       displayBox.setAttribute('position', {x: -5, y: 0.15, z: -8.5});
       displayBox.setAttribute('rotation', {x: 0, y: 0, z: 0});
       displayBox.setAttribute('material', {'opacity': 0.5});
@@ -136,9 +136,10 @@ AFRAME.registerComponent('show-objects', {
 
     //?sphere creator function
     let displaySphereCreator = function() {
-      displaySphere = document.createElement('A-SPHERE');
+      displaySphere = document.createElement('A-ENTITY');
       displayBase.appendChild(displaySphere);
       displaySphere.setAttribute('id', 'displaySphere');
+      displaySphere.setAttribute('geometry', {'primitive': 'sphere'});
       displaySphere.setAttribute('position', {x: -7, y: 0.15, z: -7.25});
       displaySphere.setAttribute('rotation', {x: 0, y: 0, z: 0});
       displaySphere.setAttribute('scale', {x: 0.7, y: 0.7, z: 0.7});
@@ -153,9 +154,10 @@ AFRAME.registerComponent('show-objects', {
 
     //?cone creator function
     let displayConeCreator = function() {
-      displayCone = document.createElement('A-CONE');
+      displayCone = document.createElement('A-ENTITY');
       displayBase.appendChild(displayCone);
       displayCone.setAttribute('id', 'displayCone');
+      displayCone.setAttribute('geometry', {'primitive': 'cone'});
       displayCone.setAttribute('position', {x: -0.75, y: 0.15, z: -9.75});
       displayCone.setAttribute('rotation', {x: 0, y: 0, z: 0});
       displayCone.setAttribute('scale', {x: 0.7, y: 1, z: 0.7});
@@ -170,10 +172,13 @@ AFRAME.registerComponent('show-objects', {
 
     //?dodecahedron creator function
     let displayDodecahedronCreator = function() {
-      displayDodecahedron = document.createElement('A-DODECAHEDRON');
+      displayDodecahedron = document.createElement('A-ENTITY');
       displayBase.appendChild(displayDodecahedron);
       displayDodecahedron.setAttribute('id', 'displayDodecahedron');
-      displayDodecahedron.setAttribute('radius', 0.75);
+      displayDodecahedron.setAttribute('geometry', {
+        'primitive': 'dodecahedron',
+        'radius': 0.75
+      });
       displayDodecahedron.setAttribute('position', {x: 1.25, y: 0.15, z: -10});
       displayDodecahedron.setAttribute('rotation', {x: 0, y: 0, z: 0});
       displayDodecahedron.setAttribute('scale', {x: 0.9, y: 0.9, z: 0.9});
@@ -188,15 +193,21 @@ AFRAME.registerComponent('show-objects', {
 
     //?circle creator function
     let displayCircleCreator = function () {
-      displayCircle = document.createElement('A-CIRCLE');
+      displayCircle = document.createElement('A-ENTITY');
       displayBase.appendChild(displayCircle);
       displayCircle.setAttribute('id', 'displayCircle');
+      displayCircle.setAttribute('geometry', {
+        'primitive': 'circle',
+        'radius': 0.75,
+      });
       displayCircle.setAttribute('radius', 0.75);
       displayCircle.setAttribute('position', {x: 3, y: 0.15, z: -9.25});
       displayCircle.setAttribute('rotation', {x: 0, y: 0, z: 0});
-      displayCircle.setAttribute('side', 'double');
       displayCircle.setAttribute('scale', {x: 0.8, y: 0.8, z: 0.8});
-      displayCircle.setAttribute('material', {'opacity': 0.5});
+      displayCircle.setAttribute('material', {
+        'opacity': 0.5,
+        'side': 'double'
+      });
       displayCircle.setAttribute('pre-selection-view', '');
       displayCircle.setAttribute('select-primitive', '');
       displayCircle.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
@@ -207,14 +218,17 @@ AFRAME.registerComponent('show-objects', {
 
     //?plane creator function
     let displayPlaneCreator = function() {
-      displayPlane = document.createElement('A-PLANE');
+      displayPlane = document.createElement('A-ENTITY');
       displayBase.appendChild(displayPlane);
       displayPlane.setAttribute('id', 'displayPlane');
+      displayPlane.setAttribute('geometry', {'primitive': 'plane'});
       displayPlane.setAttribute('position', {x: 4.75, y: 0.15, z: -8.25});
       displayPlane.setAttribute('rotation', {x: 0, y: 0, z: 0});
       displayPlane.setAttribute('scale', {x: 1.1, y: 1.1, z: 1.1});
-      displayPlane.setAttribute('material', {'opacity': 0.5});
-      displayPlane.setAttribute('side', 'double');
+      displayPlane.setAttribute('material', {
+        'opacity': 0.5,
+        'side': 'double'
+      });
       displayPlane.setAttribute('pre-selection-view', '');
       displayPlane.setAttribute('select-primitive', '');
       displayPlane.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
@@ -225,16 +239,21 @@ AFRAME.registerComponent('show-objects', {
 
     //?triangle creator function
     let displayTriangleCreator = function() {
-      displayTriangle = document.createElement('A-TRIANGLE');
+      displayTriangle = document.createElement('A-ENTITY');
       displayBase.appendChild(displayTriangle);
       displayTriangle.setAttribute('id', 'displayTriangle');
-      displayTriangle.setAttribute('vertex-a', '-0.85 -0.75 0');
-      displayTriangle.setAttribute('vertex-b',  '0 0.75 0');
-      displayTriangle.setAttribute('vertex-c', '0.85 -0.75 0');
+      displayTriangle.setAttribute('geometry', {
+        'primitive': 'triangle',
+        'vertexA': '-0.85 -0.75 0',
+        'vertexB':  '0 0.75 0',
+        'vertexC': '0.85 -0.75 0'
+      });
       displayTriangle.setAttribute('position', {x: 6.25, y: 0.15, z: -7});
       displayTriangle.setAttribute('rotation', {x: 0, y: 0, z: 0})
-      displayTriangle.setAttribute('side', 'double');
-      displayTriangle.setAttribute('material', {'opacity': 0.5});
+      displayTriangle.setAttribute('material', {
+        'opacity': 0.5,
+        'side': 'double'
+      });
       displayTriangle.setAttribute('pre-selection-view', '');
       displayTriangle.setAttribute('select-primitive', '');
       displayTriangle.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
@@ -322,8 +341,9 @@ AFRAME.registerComponent('select-primitive', {
     let scene = document.getElementById('scene');
 
     let primitiveCreator = () => {
-      let primitive = document.createElement(el.tagName);
+      let primitive = document.createElement('A-ENTITY');
       scene.appendChild(primitive);
+      primitive.setAttribute('material', el.geometry);
       primitive.setAttribute('hoverable', '');
       primitive.setAttribute('id', el.tagName + `${primitives.length + 1}`);
       primitives.push(primitive);
@@ -362,6 +382,7 @@ AFRAME.registerComponent('hoverable', {
   init: function(e) {
     let el = this.el;
 
+    
     console.log('hover init of: ', el);
     el.addEventListener('raycaster-intersected', function (evt) {
       el.setAttribute('material', {
@@ -369,19 +390,9 @@ AFRAME.registerComponent('hoverable', {
       });
 
       el.addEventListener('triggerdown', function (evt) {
-        if(workingObject !== undefined) {
-          lastworkingObject = workingObject;
-        };
-
         workingObject = el;
 
-        if(lastworkingObject !== undefined) {
-          lastworkingObject.setAttribute('material', {
-            'color': '#FFF',
-            'wireframe': 'false',
-            'emissive': '#000',
-          });
-        };
+        el.objProperties = el.attributes;
 
         if(mode == 'edit') {
           el.setAttribute('material', {
@@ -393,19 +404,7 @@ AFRAME.registerComponent('hoverable', {
       });
 
       el.addEventListener('click', function (evt) {
-        if(workingObject !== undefined) {
-          lastworkingObject = workingObject;
-        };
-
         workingObject = el;
-
-        if(lastworkingObject !== undefined) {
-          lastworkingObject.setAttribute('material', {
-            'color': '#FFF',
-            'wireframe': 'false',
-            'emissive': '#000',
-          });
-        };
 
         if(mode == 'edit') {
           el.setAttribute('material', {
