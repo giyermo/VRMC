@@ -93,7 +93,8 @@ AFRAME.registerComponent('show-objects', {
         'roughness': 0.5,
         'metalness': 0.5,
         'color': '#0F0E0E', 
-      })
+      });
+      displayBase.setAttribute('data-raycastable', '')
       console.log('diplay plane created --> ', displayBase)
 
       return displayBase;
@@ -111,6 +112,7 @@ AFRAME.registerComponent('show-objects', {
       displayCylinder.setAttribute('material', {'opacity': 0.5});
       displayCylinder.setAttribute('pre-selection-view', '');
       displayCylinder.setAttribute('select-primitive', '');
+      displayCylinder.setAttribute('data-raycastable', '')
       //displayCylinder.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
       console.log('display cylinder created --> ', displayCylinder);          
 
@@ -128,6 +130,7 @@ AFRAME.registerComponent('show-objects', {
       displayBox.setAttribute('material', {'opacity': 0.5});
       displayBox.setAttribute('pre-selection-view', '');
       displayBox.setAttribute('select-primitive', '');
+      displayBox.setAttribute('data-raycastable', '')
       displayBox.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
       console.log('display box created --> ', displayBox);
 
@@ -146,6 +149,7 @@ AFRAME.registerComponent('show-objects', {
       displaySphere.setAttribute('material', {'opacity': 0.5});
       displaySphere.setAttribute('pre-selection-view', '');
       displaySphere.setAttribute('select-primitive', '');
+      displaySphere.setAttribute('data-raycastable', '')
       //displaySphere.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
       console.log('display sphere created --> ', displaySphere);
 
@@ -164,6 +168,7 @@ AFRAME.registerComponent('show-objects', {
       displayCone.setAttribute('material', {'opacity': 0.5});
       displayCone.setAttribute('pre-selection-view', '');
       displayCone.setAttribute('select-primitive', '');
+      displayCone.setAttribute('data-raycastable', '')
       //displayCone.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
       console.log('display cone created --> ', displayCone);
 
@@ -185,6 +190,7 @@ AFRAME.registerComponent('show-objects', {
       displayDodecahedron.setAttribute('material', {'opacity': 0.5});
       displayDodecahedron.setAttribute('pre-selection-view', '');
       displayDodecahedron.setAttribute('select-primitive', '');
+      displayDodecahedron.setAttribute('data-raycastable', '')
       displayDodecahedron.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
       console.log('display dodecahedron created -->', displayDodecahedron);
 
@@ -210,6 +216,7 @@ AFRAME.registerComponent('show-objects', {
       });
       displayCircle.setAttribute('pre-selection-view', '');
       displayCircle.setAttribute('select-primitive', '');
+      displayCircle.setAttribute('data-raycastable', '')
       displayCircle.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
       console.log('display circle created --> ', displayCircle);
 
@@ -231,6 +238,7 @@ AFRAME.registerComponent('show-objects', {
       });
       displayPlane.setAttribute('pre-selection-view', '');
       displayPlane.setAttribute('select-primitive', '');
+      displayPlane.setAttribute('data-raycastable', '')
       displayPlane.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
       console.log('display plane created --> ', displayPlane);
 
@@ -256,6 +264,7 @@ AFRAME.registerComponent('show-objects', {
       });
       displayTriangle.setAttribute('pre-selection-view', '');
       displayTriangle.setAttribute('select-primitive', '');
+      displayTriangle.setAttribute('data-raycastable', '')
       displayTriangle.setAttribute('animation', 'property: rotation; from: 0 0 0; to: 0 360 0; dur: 5000; loop: -1; easing:linear');
       console.log('display triangle created --> ', displayTriangle);
 
@@ -343,20 +352,26 @@ AFRAME.registerComponent('select-primitive', {
     let primitiveCreator = () => {
       let primitive = document.createElement('A-ENTITY');
       scene.appendChild(primitive);
-      primitive.setAttribute('material', el.geometry);
+      primitive.setAttribute('geometry', el.getAttribute('geometry'));
+      primitive.setAttribute('material', {'color': '#FFF'});
       primitive.setAttribute('hoverable', '');
       primitive.setAttribute('id', el.tagName + `${primitives.length + 1}`);
+      primitive.setAttribute('data-raycastable', '');
+      primitive.setAttribute('draggable', '');
       primitives.push(primitive);
 
       console.log('primitives array: ', primitives);
     };
 
     el.addEventListener('raycaster-intersected', function (evt) {
+      console.log('intersected');
       el.addEventListener('triggerdown', function (evt) {
+        console.log('pressed');
         primitiveCreator();
       });
 
       el.addEventListener('click', function (evt) {
+        console.log('pressed');
         primitiveCreator();
       });
     });
@@ -367,10 +382,6 @@ AFRAME.registerComponent('selection-sound', {
   init: function() {
     console.log('init')
     let selectionSoundEntity = document.getElementById('selectionSoundEntity');
-    
-    document.addEventListener('click', function() {
-      selectionSoundEntity.components.sound.playSound();
-    });
 
     document.addEventListener('triggerdown', function() {
       selectionSoundEntity.components.sound.playSound();
@@ -402,18 +413,6 @@ AFRAME.registerComponent('hoverable', {
           });
         };
       });
-
-      el.addEventListener('click', function (evt) {
-        workingObject = el;
-
-        if(mode == 'edit') {
-          el.setAttribute('material', {
-            'wireframe': 'true',
-            'emissive': '#FF5A00',
-            'emissiveIntensity': '0.5',
-          });
-        };
-      });
     });
 
     el.addEventListener('raycaster-intersected-cleared', function (evt) {
@@ -427,3 +426,115 @@ AFRAME.registerComponent('hoverable', {
     });
   },
 });
+
+AFRAME.registerComponent('raycaster-length-adjustement', {
+  init: function() {
+    let el = this.el;
+
+    let controller = document.getElementById('rightHand');
+
+    let raycasterAttributes = controller.getAttribute('raycaster');
+
+    let raycasterLineEndPoint = controller.components.raycaster.lineData.end;
+
+    let thumbstick = {
+      x:0,
+      y:0,
+      pressed:false,
+    }
+    controller.addEventListener('thumbstickdown',function(){
+      thumbstick.pressed=true;
+    });
+    controller.addEventListener('thumbstickup',function(){
+      thumbstick.pressed=false;
+    }); 
+
+    controller.addEventListener('gripdown',function(evt){
+      controller.addEventListener('thumbstickmoved',function(evt){
+
+        thumbstick.x=evt.detail.x;
+        console.log('thumstick x position:', thumbstick.x);     
+        thumbstick.y=evt.detail.y; 
+        console.log('thumstick y position:', thumbstick.y);
+
+        if(thumbstick.y >= 0 && raycasterAttributes.far > 0.1) {
+          console.log('shortening line');
+          controller.setAttribute('raycaster', {
+            'far': raycasterAttributes.far - 0.03
+          });
+
+        } else if(thumbstick.y <= 0) {
+          console.log('lengthening line');
+          controller.setAttribute('raycaster', {
+            'far': raycasterAttributes.far + 0.03
+          });
+        };
+        console.log(raycasterAttributes.far);
+        let raycasterLineEndPoint = controller.components.raycaster.lineData.end;
+        console.log('raycaster line end point with variable (local coords):', raycasterLineEndPoint);
+        console.log('raycaster line end point (world coords):', el.object3D.localToWorld(raycasterLineEndPoint));
+      });
+    });
+  },
+});
+
+AFRAME.registerComponent('draggable', {
+  init: function() {
+    console.log('parent:', this.el.parentNode);
+    let el = this.el;
+    let controller = document.getElementById('rightHand');
+
+    /*el.addEventListener('raycaster-intersected', function(evt) {
+      console.log('intersected');
+      controller.addEventListener('gripdown', function(evt) {
+        console.log('gripdown');
+        controller.addEventListener('triggerdown', function(evt) {
+          console.log('triggerdown');
+        });
+      });
+    });*/
+  },
+
+  tick: function(evt) {
+    this.el.removeAttribute('data-raycastable');
+    console.log('end point', controller1.object3D.localToWorld(controller1.components.raycaster.lineData.end));
+    this.el.setAttribute('position', controller1.object3D.localToWorld(controller1.components.raycaster.lineData.end));
+    console.log('position', this.el.getAttribute('position'));
+  },
+});
+
+function createGrid(size) {
+
+	for (var i = -size; i <= size; i++) {
+		var z = document.createElement('a-entity');
+		var x = document.createElement('a-entity');
+		var y = document.createElement('a-entity');
+		var marksx = document.createElement('a-entity');
+		var marksz = document.createElement('a-entity');
+
+		// Clase linea para acceder a todos ellos
+		z.setAttribute('class','linedit');
+		y.setAttribute('class','linedit');
+		x.setAttribute('class','linedit');
+		marksx.setAttribute('class','linedit');
+		marksz.setAttribute('class','linedit');
+
+		// Cuadrícula
+		z.setAttribute('line', 'start: -' + size + ', 0, '  + i + '; end: ' + size + ' 0 ' + i + '; color: #EBEBEB; visible: true; opacity: 0.25');
+		x.setAttribute('line', 'start: ' + i + ', 0, -' + size + '; end: ' + i + ' 0 ' + size  + '; color: #EBEBEB; visible: true; opacity: 0.25');
+		if(size >= 0){
+			// Marcas en el eje y
+			marksx.setAttribute('line', 'start: -0.2, ' + i + ', 0; end: 0.2 ' + i + ' 0; color: #EBEBEB; visible: true; opacity: 0.25');
+			marksz.setAttribute('line', 'start: 0, ' + i + ', -0.2; end: 0 ' + i + ' 0.2; color: #EBEBEB; visible: true; opacity: 0.25');
+			scene.appendChild(marksx);
+			scene.appendChild(marksz);
+		}
+		if(i == -size){
+			// Eje y
+			y.setAttribute('line', 'start: 0, 0, 0; end:  0 ' + size  + '0; color: #EBEBEB; visible: true; opacity: 0.25');
+			scene.appendChild(y);
+		}
+		scene.appendChild(z);
+		scene.appendChild(x);
+	}
+};

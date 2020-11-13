@@ -26,30 +26,30 @@
       <!--*Axis-->
       <a-box id="Xaxis"
       width="1000"
-      height="0.005"
-      depth="0.005"
+      height="0.01"
+      depth="0.01"
       position="0 0 0"
       opacity="0.75"
       color="red"></a-box>
 
       <a-box id="Yaxis"
-      width="0.005"
+      width="0.01"
       height="1000"
-      depth="0.005"
+      depth="0.01"
       position="0 0 0"
       opacity="0.75"
       color="lightgreen"></a-box>
 
       <a-box id="Zaxis"
-      width="0.005"
-      height="0.005"
+      width="0.01"
+      height="0.01"
       depth="1000"
       position="0 0 0"
       opacity="0.75"
       color="blue"></a-box>
 
       <!--*Controllers-->
-      <a-entity id="movementControls" movement-controls="fly: true" >
+      <a-entity id="movementControls" movement-controls="fly: true">
         <a-entity cursor="rayOrigin: mouse"></a-entity>
 
         <a-entity id="leftHand" 
@@ -58,7 +58,8 @@
         <a-entity id="rightHand" 
         hand-controls="hand: right; handModelStyle: lowPoly; color: #ffcccc" 
         laser-controls="hand:right" 
-        raycaster="showline: true"></a-entity>
+        raycaster="showline: true; far: 10; objects: [data-raycastable]"
+        raycaster-length-adjustement></a-entity>
 
         <a-entity id="camera"
         camera wasd-controls
@@ -68,5 +69,10 @@
         
       </a-entity>
     </a-scene>
+
+    <script>
+      let controller1 = document.getElementById('rightHand');
+      createGrid('20');
+    </script>
   </body>
 </html>
