@@ -452,10 +452,8 @@ AFRAME.registerComponent('raycaster-length-adjustement', {
     controller.addEventListener('gripdown',function(evt){
       controller.addEventListener('thumbstickmoved',function(evt){
 
-        thumbstick.x=evt.detail.x;
-        console.log('thumstick x position:', thumbstick.x);     
+        thumbstick.x=evt.detail.x;     
         thumbstick.y=evt.detail.y; 
-        console.log('thumstick y position:', thumbstick.y);
 
         if(thumbstick.y >= 0 && raycasterAttributes.far > 0.1) {
           console.log('shortening line');
@@ -469,10 +467,6 @@ AFRAME.registerComponent('raycaster-length-adjustement', {
             'far': raycasterAttributes.far + 0.03
           });
         };
-        console.log(raycasterAttributes.far);
-        let raycasterLineEndPoint = controller.components.raycaster.lineData.end;
-        console.log('raycaster line end point with variable (local coords):', raycasterLineEndPoint);
-        console.log('raycaster line end point (world coords):', el.object3D.localToWorld(raycasterLineEndPoint));
       });
     });
   },
@@ -480,26 +474,44 @@ AFRAME.registerComponent('raycaster-length-adjustement', {
 
 AFRAME.registerComponent('draggable', {
   init: function() {
-    console.log('parent:', this.el.parentNode);
     let el = this.el;
+
     let controller = document.getElementById('rightHand');
 
-    /*el.addEventListener('raycaster-intersected', function(evt) {
+    let dragging = this.dragging;
+
+    controller.addEventListener('raycaster-intersected', function(evt) {
       console.log('intersected');
       controller.addEventListener('gripdown', function(evt) {
         console.log('gripdown');
         controller.addEventListener('triggerdown', function(evt) {
           console.log('triggerdown');
+          el.removeAttribute('data-raycastable');
+          dragging.value = true;
+          console.log('triggerdown', dragging.value);
+        });
+        controller.addEventListener('triggerup', function(evt) {
+          console.log('triggerup');
+          el.setAttribute('data-raycastable', '');
+          dragging.value = false;
+          console.log('triggerup', dragging.value);
         });
       });
-    });*/
+    });
+  },
+
+  dragging: {value: false},
+
+  drag: function() {
+    let position = controller1.object3D.localToWorld(controller1.components.raycaster.lineData.end);
+    this.el.object3D.position.set(position.x, position.y, position.z);
   },
 
   tick: function(evt) {
-    this.el.removeAttribute('data-raycastable');
-    console.log('end point', controller1.object3D.localToWorld(controller1.components.raycaster.lineData.end));
-    this.el.setAttribute('position', controller1.object3D.localToWorld(controller1.components.raycaster.lineData.end));
-    console.log('position', this.el.getAttribute('position'));
+    console.log('tick', this.dragging.value);
+    if(this.dragging.value == true) {
+      this.drag();
+    };
   },
 });
 
