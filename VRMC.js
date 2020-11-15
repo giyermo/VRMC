@@ -361,6 +361,7 @@ AFRAME.registerComponent('select-primitive', {
       primitives.push(primitive);
 
       console.log('primitives array: ', primitives);
+      return primitive;
     };
 
     el.addEventListener('raycaster-intersected', function (evt) {
@@ -441,7 +442,26 @@ AFRAME.registerComponent('raycaster-length-adjustement', {
       x:0,
       y:0,
       pressed:false,
-    }
+    };
+
+    let thumbstickMovedAfterGripDown = (evt) => {
+      thumbstick.x=evt.detail.x;     
+      thumbstick.y=evt.detail.y; 
+
+      if(thumbstick.y >= 0 && raycasterAttributes.far > 0.1) {
+        console.log('shortening line');
+        controller.setAttribute('raycaster', {
+          'far': raycasterAttributes.far - 0.03
+        });
+
+      } else if(thumbstick.y <= 0) {
+        console.log('lengthening line');
+        controller.setAttribute('raycaster', {
+          'far': raycasterAttributes.far + 0.03
+        });
+      };
+    };
+
     controller.addEventListener('thumbstickdown',function(){
       thumbstick.pressed=true;
     });
@@ -449,25 +469,12 @@ AFRAME.registerComponent('raycaster-length-adjustement', {
       thumbstick.pressed=false;
     }); 
 
-    controller.addEventListener('gripdown',function(evt){
-      controller.addEventListener('thumbstickmoved',function(evt){
+    controller.addEventListener('gripdown', function(evt) {
+      controller.addEventListener('thumbstickmoved', thumbstickMovedAfterGripDown);
+    });
 
-        thumbstick.x=evt.detail.x;     
-        thumbstick.y=evt.detail.y; 
-
-        if(thumbstick.y >= 0 && raycasterAttributes.far > 0.1) {
-          console.log('shortening line');
-          controller.setAttribute('raycaster', {
-            'far': raycasterAttributes.far - 0.03
-          });
-
-        } else if(thumbstick.y <= 0) {
-          console.log('lengthening line');
-          controller.setAttribute('raycaster', {
-            'far': raycasterAttributes.far + 0.03
-          });
-        };
-      });
+    controller.addEventListener('gripup', function(evt) {
+      controller.removeEventListener('thumbstickmoved', thumbstickMovedAfterGripDown);
     });
   },
 });
@@ -480,22 +487,31 @@ AFRAME.registerComponent('draggable', {
 
     let dragging = this.dragging;
 
-    controller.addEventListener('raycaster-intersected', function(evt) {
-      console.log('intersected');
-      controller.addEventListener('gripdown', function(evt) {
-        console.log('gripdown');
-        controller.addEventListener('triggerdown', function(evt) {
-          console.log('triggerdown');
-          el.removeAttribute('data-raycastable');
+    let triggerDownAfterGrip = (evt) => {
+      el.removeAttribute('data-raycastable');
+          el.setAttribute('material', {
+            'color': '#FF5A00',
+          });
           dragging.value = true;
-          console.log('triggerdown', dragging.value);
-        });
-        controller.addEventListener('triggerup', function(evt) {
-          console.log('triggerup');
-          el.setAttribute('data-raycastable', '');
+    };
+
+    let triggerUpAfterGrip = (evt) => {
+      el.setAttribute('data-raycastable', '');
+          el.setAttribute('material', {
+            'color': '#FFF',
+          });
           dragging.value = false;
-          console.log('triggerup', dragging.value);
-        });
+    };
+
+    controller.addEventListener('raycaster-intersected', function(evt) {
+      console.log(el, 'intersected');
+      controller.addEventListener('gripdown', function(evt) {
+        controller.addEventListener('triggerdown', triggerDownAfterGrip);
+        controller.addEventListener('triggerup', triggerUpAfterGrip);
+      });
+      controller.addEventListener('gripup', function(evt) {
+        controller.removeEventListener('triggerdown', triggerDownAfterGrip);
+        controller.removeEventListener('triggerup', triggerUpAfterGrip);
       });
     });
   },
@@ -508,7 +524,6 @@ AFRAME.registerComponent('draggable', {
   },
 
   tick: function(evt) {
-    console.log('tick', this.dragging.value);
     if(this.dragging.value == true) {
       this.drag();
     };
